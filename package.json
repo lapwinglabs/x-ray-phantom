@@ -1,0 +1,21 @@
+{
+  "name": "x-ray-phantom",
+  "version": "0.0.1",
+  "description": "phantom driver for x-ray",
+  "keywords": [],
+  "author": "Matthew Mueller <matt@lapwinglabs.com>",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/lapwinglabs/x-ray-phantom.git"
+  },
+  "dependencies": {
+    "debug": "^2.1.1",
+    "delegates": "^0.1.0",
+    "nightmare": "^1.7.0"
+  },
+  "devDependencies": {
+    "x-ray": "^1.0.0",
+    "mocha": "*"
+  },
+  "main": "index"
+}
