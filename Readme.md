@@ -1,7 +1,7 @@
 
 # x-ray-phantom
 
-  phantom driver for x-ray.
+  phantom driver for [x-ray](https://github.com/matthewmueller/x-ray).
 
 ## Installation
 
@@ -11,12 +11,42 @@ npm install x-ray-phantom
 
 ## Usage
 
-```
+```js
 xray('http://google.com')
   .use(phantom())
-  .select({ ... })
+  .type('input', 'x-ray')
+  .click('.search')
+  .select([{
+    $root: '.result',
+    title: '.title',
+    link: 'a[href]'
+  }])
   .write('out.json');
 ```
+
+## API
+
+#### xray#request(url, fn)
+
+Make the request using PhantomJS
+
+#### Methods from Nightmare
+
+This driver also adds the following methods from [nightmare](https://github.com/segmentio/nightmare):
+
+- xray#useragent
+- xray#viewport
+- xray#scrollTo
+- xray#forward
+- xray#refresh
+- xray#upload
+- xray#click
+- xray#check
+- xray#type
+- xray#back
+- xray#wait
+
+Check their readme for usage details.
 
 ## Test
 
