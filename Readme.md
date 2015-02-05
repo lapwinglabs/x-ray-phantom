@@ -1,7 +1,7 @@
 
 # x-ray-phantom
 
-  phantom driver for [x-ray](https://github.com/matthewmueller/x-ray).
+  phantom driver for [x-ray](https://github.com/lapwinglabs/x-ray).
 
 ## Installation
 
