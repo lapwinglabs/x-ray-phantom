@@ -10,12 +10,11 @@
   },
   "dependencies": {
     "debug": "^2.1.1",
-    "delegates": "^0.1.0",
     "nightmare": "^1.7.0"
   },
   "devDependencies": {
-    "x-ray": "^1.0.0",
-    "mocha": "*"
+    "mocha": "*",
+    "x-ray-crawler": "^1.0.1"
   },
   "main": "index"
 }

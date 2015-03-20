@@ -4,25 +4,6 @@
 
 var debug = require('debug')('x-ray:phantom');
 var Nightmare = require('nightmare');
-var delegates = require('delegates');
-
-/**
-* Custom methods
-*/
-
-var methods = [
-'useragent',
-'viewport',
-'scrollTo',
-'forward',
-'refresh',
-'upload',
-'click',
-'check',
-'type',
-'back',
-'wait'
-];
 
 /**
 * Export `driver`
@@ -32,51 +13,50 @@ module.exports = driver;
 
 /**
 * Initialize the `driver`
-* with the following `opts`
+* with the following `options`
 *
-* @param {Object} opts
+* @param {Object} options
+* @param {Function} fn
 * @return {Function}
 * @api public
 */
 
-function driver(opts) {
-var nightmare = Nightmare(opts);
+function driver(options, fn) {
+  if ('function' == typeof options) fn = options, options = {};
+  options = options || {};
+  fn = fn || phantom;
 
-return function plugin(xray) {
-  var nightmare = Nightmare(opts);
-  var page = 0;
+  var nightmare = new Nightmare(options);
+  nightmare.on('error', error);
 
-  // plugins
-  nightmare
-    .on('error', error)
-    .goto(xray.url)
+  return function phantom_driver(ctx, done) {
+    debug('===> request')
+    fn(ctx, nightmare, function(err, nightmare) {
+      if (err) return done(err);
+      debug('<=== response');
 
-  // add methods that can be setters w/o arguments
-  methods.forEach(function(method) {
-    xray[method] = function() {
-      nightmare[method].apply(nightmare, arguments);
-      return xray;
-    };
-  });
-
-  // setup request
-  xray.request = function(url, fn) {
-    if (page) nightmare.on('error', error).goto(url);
-
-    nightmare.evaluate(function() {
-      return document.documentElement.outerHTML;
-    }, function(body) {
-      page++;
-      return fn(null, body);
-    })
-    .run(function(err) {
-      page++;
-      if (err) return fn(err);
+      nightmare.evaluate(function() {
+        return document.documentElement.outerHTML;
+      }, function(body) {
+        return done(null, body);
+      })
+      .run(done);
     });
   }
-
-  return xray;
 }
+
+/**
+ * Default phantom driver
+ *
+ * @param {HTTP Context} ctx
+ * @param {Nightmare} nightmare
+ * @param {Function} fn
+ */
+
+function phantom(ctx, nightmare, fn) {
+  debug('going to %s', ctx.url);
+  nightmare.goto(ctx.url)
+  fn(null, nightmare);
 }
 
 /**
@@ -86,5 +66,5 @@ return function plugin(xray) {
 */
 
 function error(msg) {
-debug('javascript error %s', msg);
+  debug('javascript error %s', msg);
 }
