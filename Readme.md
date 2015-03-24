@@ -45,6 +45,7 @@ This driver also adds the following methods from [nightmare](https://github.com/
 - xray#type
 - xray#back
 - xray#wait
+- xray#evaluate
 
 Check their readme for usage details.
 
