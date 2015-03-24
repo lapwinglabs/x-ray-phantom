@@ -21,7 +21,8 @@ var methods = [
 'check',
 'type',
 'back',
-'wait'
+'wait',
+'evaluate'
 ];
 
 /**
