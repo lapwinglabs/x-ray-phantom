@@ -12,6 +12,8 @@ npm install x-ray-phantom
 ## Usage
 
 ```js
+var phantom = require('x-ray-phantom')
+
 xray('http://google.com')
   .use(phantom())
   .type('input', 'x-ray')
