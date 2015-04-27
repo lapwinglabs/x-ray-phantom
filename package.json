@@ -10,10 +10,12 @@
   },
   "dependencies": {
     "debug": "^2.1.1",
-    "nightmare": "^1.7.0"
+    "nightmare": "^1.7.0",
+    "wrap-fn": "^0.1.4"
   },
   "devDependencies": {
     "mocha": "*",
+    "nightmare-swiftly": "^0.2.4",
     "x-ray-crawler": "^1.0.1"
   },
   "main": "index"

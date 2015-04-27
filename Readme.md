@@ -13,15 +13,19 @@ npm install x-ray-phantom
 
 ```js
 xray('http://google.com')
-  .use(phantom())
-  .type('input', 'x-ray')
-  .click('.search')
+  .driver(phantom(runner))
   .select([{
     $root: '.result',
     title: '.title',
     link: 'a[href]'
   }])
   .write('out.json');
+
+function runner(ctx, nightmare) {
+  if (ctx.url == 'http://google.com') {
+    
+  }
+}
 ```
 
 ## API

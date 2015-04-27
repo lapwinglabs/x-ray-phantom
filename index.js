@@ -3,7 +3,9 @@
  */
 
 var debug = require('debug')('x-ray:phantom');
+var normalize = require('normalizeurl');
 var Nightmare = require('nightmare');
+var wrapfn = require('wrap-fn');
 
 /**
 * Export `driver`
@@ -23,25 +25,47 @@ module.exports = driver;
 
 function driver(options, fn) {
   if ('function' == typeof options) fn = options, options = {};
+  var nightmare = new Nightmare();
   options = options || {};
   fn = fn || phantom;
 
-  var nightmare = new Nightmare(options);
-  nightmare.on('error', error);
 
   return function phantom_driver(ctx, done) {
-    debug('===> request')
-    fn(ctx, nightmare, function(err, nightmare) {
-      if (err) return done(err);
-      debug('<=== response');
+    debug('going to %s', ctx.url);
 
-      nightmare.evaluate(function() {
-        return document.documentElement.outerHTML;
-      }, function(body) {
-        return done(null, body);
+    nightmare
+      .on('error', error)
+      .on('timeout', function(timeout) {
+        return done(new Error(timeout));
       })
-      .run(done);
-    });
+      .on('resourceReceived', function(resource) {
+        if (normalize(resource.url) == normalize(ctx.url)) {
+          debug('got response from %s: %s', resource.url, resource.status);
+          ctx.status = resource.status;
+        };
+      })
+      .on('urlChanged', function(url) {
+        debug('redirect: %s', url);
+        ctx.url = url;
+      })
+
+    wrapfn(fn, select)(ctx, nightmare);
+
+    function select(err, ret) {
+      if (err) return done(err);
+
+      nightmare
+        .evaluate(function() {
+          return document.documentElement.outerHTML;
+        }, function(body) {
+          ctx.body = body;
+        })
+        .run(function(err) {
+          if (err) return done(err);
+          debug('%s - %s', ctx.url, ctx.status);
+          done(null, ctx);
+        });
+    };
   }
 }
 
@@ -53,10 +77,8 @@ function driver(options, fn) {
  * @param {Function} fn
  */
 
-function phantom(ctx, nightmare, fn) {
-  debug('going to %s', ctx.url);
-  nightmare.goto(ctx.url)
-  fn(null, nightmare);
+function phantom(ctx, nightmare) {
+  return nightmare;
 }
 
 /**
