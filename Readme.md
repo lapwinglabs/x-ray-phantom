@@ -32,6 +32,13 @@ x('http://google.com', 'title')(function(err, str) {
 Initialize the phantom driver with `options` being passed to Nightmare and
 an optional custom `fn` with the signature `function(nightmare, done)`.
 
+## Test
+
+```
+npm install
+make test
+```
+
 ## License
 
 MIT
