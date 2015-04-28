@@ -1,6 +1,6 @@
 {
   "name": "x-ray-phantom",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "phantom driver for x-ray",
   "keywords": [],
   "author": "Matthew Mueller <matt@lapwinglabs.com>",
