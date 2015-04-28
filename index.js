@@ -3,27 +3,9 @@
  */
 
 var debug = require('debug')('x-ray:phantom');
+var normalize = require('normalizeurl');
 var Nightmare = require('nightmare');
-var delegates = require('delegates');
-
-/**
-* Custom methods
-*/
-
-var methods = [
-'useragent',
-'viewport',
-'scrollTo',
-'forward',
-'refresh',
-'upload',
-'click',
-'check',
-'type',
-'back',
-'wait',
-'evaluate'
-];
+var wrapfn = require('wrap-fn');
 
 /**
 * Export `driver`
@@ -33,51 +15,70 @@ module.exports = driver;
 
 /**
 * Initialize the `driver`
-* with the following `opts`
+* with the following `options`
 *
-* @param {Object} opts
+* @param {Object} options
+* @param {Function} fn
 * @return {Function}
 * @api public
 */
 
-function driver(opts) {
-var nightmare = Nightmare(opts);
+function driver(options, fn) {
+  if ('function' == typeof options) fn = options, options = {};
+  var nightmare = new Nightmare();
+  options = options || {};
+  fn = fn || phantom;
 
-return function plugin(xray) {
-  var nightmare = Nightmare(opts);
-  var page = 0;
 
-  // plugins
-  nightmare
-    .on('error', error)
-    .goto(xray.url)
+  return function phantom_driver(ctx, done) {
+    debug('going to %s', ctx.url);
 
-  // add methods that can be setters w/o arguments
-  methods.forEach(function(method) {
-    xray[method] = function() {
-      nightmare[method].apply(nightmare, arguments);
-      return xray;
+    nightmare
+      .on('error', error)
+      .on('timeout', function(timeout) {
+        return done(new Error(timeout));
+      })
+      .on('resourceReceived', function(resource) {
+        if (normalize(resource.url) == normalize(ctx.url)) {
+          debug('got response from %s: %s', resource.url, resource.status);
+          ctx.status = resource.status;
+        };
+      })
+      .on('urlChanged', function(url) {
+        debug('redirect: %s', url);
+        ctx.url = url;
+      })
+
+    wrapfn(fn, select)(ctx, nightmare);
+
+    function select(err, ret) {
+      if (err) return done(err);
+
+      nightmare
+        .evaluate(function() {
+          return document.documentElement.outerHTML;
+        }, function(body) {
+          ctx.body = body;
+        })
+        .run(function(err) {
+          if (err) return done(err);
+          debug('%s - %s', ctx.url, ctx.status);
+          done(null, ctx);
+        });
     };
-  });
-
-  // setup request
-  xray.request = function(url, fn) {
-    if (page) nightmare.on('error', error).goto(url);
-
-    nightmare.evaluate(function() {
-      return document.documentElement.outerHTML;
-    }, function(body) {
-      page++;
-      return fn(null, body);
-    })
-    .run(function(err) {
-      page++;
-      if (err) return fn(err);
-    });
   }
-
-  return xray;
 }
+
+/**
+ * Default phantom driver
+ *
+ * @param {HTTP Context} ctx
+ * @param {Nightmare} nightmare
+ * @param {Function} fn
+ */
+
+function phantom(ctx, nightmare) {
+  return nightmare.goto(ctx.url);
 }
 
 /**
@@ -87,5 +88,5 @@ return function plugin(xray) {
 */
 
 function error(msg) {
-debug('javascript error %s', msg);
+  debug('client-side javascript error %s', msg);
 }
