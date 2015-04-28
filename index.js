@@ -78,7 +78,7 @@ function driver(options, fn) {
  */
 
 function phantom(ctx, nightmare) {
-  return nightmare;
+  return nightmare.goto(ctx.url);
 }
 
 /**
@@ -88,5 +88,5 @@ function phantom(ctx, nightmare) {
 */
 
 function error(msg) {
-  debug('javascript error %s', msg);
+  debug('client-side javascript error %s', msg);
 }
