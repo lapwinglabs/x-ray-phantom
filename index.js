@@ -25,9 +25,9 @@ module.exports = driver;
 
 function driver(options, fn) {
   if ('function' == typeof options) fn = options, options = {};
-  var nightmare = new Nightmare();
   options = options || {};
   fn = fn || phantom;
+  var nightmare = new Nightmare(options);
 
 
   return function phantom_driver(ctx, done) {
