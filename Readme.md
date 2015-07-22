@@ -15,8 +15,8 @@ npm install x-ray-phantom
 var phantom = require('x-ray-phantom');
 var Xray = require('x-ray');
 
-var x = Xray()
-  .driver(phantom());
+Xray('http://google.com')
+  .use(phantom(options))
 
 x('http://google.com', 'title')(function(err, str) {
   if (err) return done(err);
