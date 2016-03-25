@@ -3,7 +3,7 @@
 'use strict'
 
 var Xray = require('x-ray')
-var phantom = require('x-ray-phantom')
+var phantom = require('../')
 var assert = require('assert')
 
 describe('Xray.driver(fn)', function () {
