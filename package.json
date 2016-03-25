@@ -24,6 +24,7 @@
     "istanbul": "~0.4.2",
     "mocha": "latest",
     "nightmare-swiftly": "~0.2.4",
+    "x-ray": "~2.0.3",
     "x-ray-crawler": "~2.0.1"
   },
   "engines": {
