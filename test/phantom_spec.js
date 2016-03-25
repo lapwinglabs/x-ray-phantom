@@ -17,7 +17,7 @@ var phantom = require('../')
 describe('phantom driver', function () {
   it('should have sensible defaults', function (done) {
     var crawler = Crawler()
-      .driver(phantom())
+      .driver(phantom({ webSecurity: false }))
 
     crawler('http://google.com', function (err, ctx) {
       if (err) return done(err)
@@ -30,7 +30,7 @@ describe('phantom driver', function () {
 
   it('should work with client-side pages', function (done) {
     var crawler = Crawler()
-      .driver(phantom())
+      .driver(phantom({ webSecurity: false }))
 
     crawler('https://exchange.coinbase.com/trade', function (err, ctx) {
       if (err) return done(err)
