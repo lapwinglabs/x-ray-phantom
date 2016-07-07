@@ -16,8 +16,7 @@ var fs = require('fs');
 describe('phantom driver', function() {
 
   it('should have sensible defaults', function(done) {
-    var crawler = Crawler()
-      .driver(phantom())
+    var crawler = Crawler(phantom());
 
     crawler('http://google.com', function(err, ctx) {
       if (err) return done(err);
@@ -28,9 +27,8 @@ describe('phantom driver', function() {
     })
   });
 
-  it('should work with client-side pages', function(done) {
-    var crawler = Crawler()
-      .driver(phantom());
+  it.skip('should work with client-side pages', function(done) {
+    var crawler = Crawler(phantom());
 
     crawler('https://exchange.coinbase.com/trade', function(err, ctx) {
       if (err) return done(err);
@@ -39,28 +37,27 @@ describe('phantom driver', function() {
       assert.equal(false, isNaN(+price));
       done();
     })
-  })
+  });
 
   it('should support custom functions', function(done) {
-    var crawler = Crawler()
-      .driver(phantom(runner));
+    var crawler = Crawler(phantom(runner));
 
-    crawler('http://mat.io', function(err, ctx) {
+    crawler('http://www.npmjs.com', function(err, ctx) {
       if (err) return done(err);
       var $ = cheerio.load(ctx.body);
       var title = $('title').text();
-      assert.equal('Lapwing Labs', title);
+      assert.equal('npm Documentation', title);
       done();
-    })
+    });
 
     function runner(ctx, nightmare) {
       return nightmare
-        .goto(ctx.url)
-        .click('.Header-logo-item+ .Header-list-item a')
-        .wait()
+          .goto(ctx.url)
+          .click('#nav-docs-link')
+          .wait()
     }
-  })
-})
+  });
+});
 
 /**
  * Read
