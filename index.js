@@ -33,39 +33,20 @@ function driver(options, fn) {
   return function phantom_driver(ctx, done) {
     debug('going to %s', ctx.url);
 
-    nightmare
-      .on('error', error)
-      .on('timeout', function(timeout) {
-        return done(new Error(timeout));
-      })
-      .on('resourceReceived', function(resource) {
-        if (normalize(resource.url) == normalize(ctx.url)) {
-          debug('got response from %s: %s', resource.url, resource.status);
-          ctx.status = resource.status;
-        };
-      })
-      .on('urlChanged', function(url) {
-        debug('redirect: %s', url);
-        ctx.url = url;
-      })
-
-    wrapfn(fn, select)(ctx, nightmare);
-
-    function select(err, ret) {
-      if (err) return done(err);
-
-      nightmare
+    fn(ctx, nightmare)
         .evaluate(function() {
-          return document.documentElement.outerHTML;
-        }, function(body) {
-          ctx.body = body;
+            return document.documentElement.outerHTML;
         })
-        .run(function(err) {
-          if (err) return done(err);
-          debug('%s - %s', ctx.url, ctx.status);
-          done(null, ctx);
+        .end()
+        .then(function (body) {
+            debug('got response from %s, content length: %s', ctx.url, (body || '').length);
+            ctx.body = body;
+            done(null, ctx);
+        })
+        .catch(function (err) {
+            debug('nightmare error', err);
+            if (err) return done(err);
         });
-    };
   }
 }
 
